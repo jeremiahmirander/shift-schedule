@@ -1,0 +1,37 @@
+FROM php:7.4-fpm-alpine
+
+# Install php extensions
+RUN docker-php-ext-install pdo pdo_mysql
+
+# Use development php.ini
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+RUN apk add --no-cache $PHPIZE_DEPS \
+&& pecl install redis-5.2.2 \
+&& pecl install xdebug-2.9.5 \
+&& docker-php-ext-enable redis xdebug \
+# Reduce image size
+&& apk del $PHPIZE_DEPS
+
+# Install composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Composer
+# Need this is figure out what to install
+COPY composer.json composer.json
+# Need these for autoloader
+COPY database database
+
+# xDebug
+COPY /xdebug.conf ./
+RUN cat ./xdebug.conf >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Install dependencies
+RUN composer xoff \
+&& composer install --prefer-dist --no-scripts --no-autoloader \
+# Reduce image size
+&& rm -rf /root/.composer
+# Autoload
+RUN composer dump-autoload --no-scripts --optimize

@@ -1,6 +1,4 @@
-# Todo App
-![Frontend CI Workflow](https://github.com/patrol-shift/todo/workflows/Frontend%20CI%20Workflow/badge.svg)
-![Backend CI Workflow](https://github.com/patrol-shift/todo/workflows/Backend%20CI%20Workflow/badge.svg)
+
 
 # Dev Server
 `docker-compose up -d`
